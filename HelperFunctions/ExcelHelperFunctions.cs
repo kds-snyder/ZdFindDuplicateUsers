@@ -12,7 +12,7 @@ namespace ZdFindDuplicateUsers.HelperFunctions
     public static class ExcelHelperFunctions
     {
         /// <summary>
-        /// Add a cell with the specified address to a row.
+        /// Add cell with specified address to specified row
         /// </summary>
         /// <param name="row"></param>
         /// <param name="address"></param>
@@ -171,20 +171,6 @@ namespace ZdFindDuplicateUsers.HelperFunctions
                 stringTablePart = wbPart.AddNewPart<SharedStringTablePart>();
             }
 
-            //var stringTablePart = wbPart
-            //    .GetPartsOfType<SharedStringTablePart>().FirstOrDefault();
-
-            //// If the shared string table is missing, create it.
-            //if (stringTablePart is null)
-            //{
-            //    stringTablePart = wbPart.AddNewPart<SharedStringTablePart>();
-            //}
-
-            //var stringTable = stringTablePart.SharedStringTable;
-            //if (stringTable is null)
-            //{
-            //    stringTable = new SharedStringTable();
-            //}
 
             // If the part does not contain a SharedStringTable, create one.
             if (stringTablePart.SharedStringTable is null)
@@ -193,8 +179,7 @@ namespace ZdFindDuplicateUsers.HelperFunctions
             }
 
             // Iterate through all the items in the SharedStringTable. 
-            // If the text already exists, return its index.
-            //foreach (SharedStringItem item in stringTable.Elements<SharedStringItem>())
+            // If the text already exists, return its index, otherwise add it.
             foreach (SharedStringItem item in stringTablePart.SharedStringTable.Elements<SharedStringItem>())
             {
                 if (item.InnerText == value)
@@ -217,15 +202,15 @@ namespace ZdFindDuplicateUsers.HelperFunctions
         /// <summary>
         /// Updates a cell value in a workbook sheet
         /// </summary>
-        /// <param name="sheetName">Workbook sheet to edit</param>
-        /// <param name="addressName">excel cell address (B5)</param>
-        /// <param name="value">Text value</param>
-        /// <param name="styleIndex">styling to apply to cell - 0 is no style</param>
         /// <param name="wbPart">WorkBookPart</param>
-        /// <param name="isString">string or number</param>
+        /// <param name="sheetName">Workbook sheet to edit</param>
+        /// <param name="addressName">excel cell address (e.g. B5)</param>
+        /// <param name="value">value for cell</param>
+        /// <param name="styleIndex"> styling to apply to cell - defaults to 0 (no style</param>)
+        /// <param name="isString">string or number - defaults to true (string) </param>
         /// <returns></returns>
-        public static bool UpdateCellValue(string sheetName, string addressName, string value,
-                               UInt32Value styleIndex, WorkbookPart wbPart, bool isString)
+        public static bool UpdateCellValue(WorkbookPart wbPart, string sheetName, string addressName, string value,
+                               int styleIndex = 0,  bool isString = true)
         {
             // Assume failure.
             bool updated = false;
@@ -253,7 +238,7 @@ namespace ZdFindDuplicateUsers.HelperFunctions
                     cell.DataType = new EnumValue<CellValues>(CellValues.Number);
                 }
                 if (styleIndex > 0)
-                    cell.StyleIndex = styleIndex;
+                    cell.StyleIndex = Convert.ToUInt32(styleIndex);
 
                 // Save the worksheet and workbook.
                 ws.Save();
@@ -264,6 +249,15 @@ namespace ZdFindDuplicateUsers.HelperFunctions
             return updated;
         }
 
+        /// <summary>
+        /// Outputs duplicated users to Excel file
+        /// Columns are user name, email, role, and updated
+        /// </summary>
+        /// <param name="fileName">File to edit</param>
+        /// <param name="sheetName">Workbook sheet to edit</param>
+        /// <param name="duplicatedUsersGrouped">Grouped list of duplicated users</param>
+        /// <param name="zdUsers">List of users</param>
+        /// <returns></returns>
         public static void OutputDuplicatedUsersToExcel(string fileName, string sheetName, IOrderedEnumerable<IGrouping<string, ZdUser>> duplicatedUsersGrouped, IEnumerable<ZdUser> zdUsers)
         {
             string ColUserNameHeader = "User Name";
@@ -275,53 +269,46 @@ namespace ZdFindDuplicateUsers.HelperFunctions
             string ColUpdatedHeader = "Updated";
             string ColUpdatedIndex = "D";
 
-            try
+            using (var fs = new FileStream(fileName, FileMode.Open, FileAccess.ReadWrite))
             {
-                using (var fs = new FileStream(fileName, FileMode.Open, FileAccess.ReadWrite))
+                int rowIndex = 1;
+                using (SpreadsheetDocument document = SpreadsheetDocument.Open(fs, true))
                 {
-                    int rowIndex = 1;
-                    using (SpreadsheetDocument document = SpreadsheetDocument.Open(fs, true))
+                    WorkbookPart wbPart = document.WorkbookPart;
+
+                    // Write counts
+                    UpdateCellValue(wbPart, sheetName, ColUserNameIndex + rowIndex.ToString(),
+                                    $"Total # user records: {zdUsers.Count()}, # duplicated users: {duplicatedUsersGrouped.Count()}");
+                    rowIndex = rowIndex + 2;
+
+                    // Write column headers
+                    UpdateCellValue(wbPart, sheetName, ColUserNameIndex + rowIndex.ToString(), ColUserNameHeader);
+                    UpdateCellValue(wbPart, sheetName, ColUserEmailIndex + rowIndex.ToString(), ColUserEmailHeader);
+                    UpdateCellValue(wbPart, sheetName, ColRoleIndex + rowIndex.ToString(), ColRoleHeader);
+                    UpdateCellValue(wbPart, sheetName, ColUpdatedIndex + rowIndex.ToString(), ColUpdatedHeader);
+
+                    // Write the user data
+                    foreach (var userGroup in duplicatedUsersGrouped)
                     {
-                        WorkbookPart wbPart = document.WorkbookPart;
-
-                        // Write column headers
-                        UpdateCellValue(sheetName, ColUserNameIndex + rowIndex.ToString(), ColUserNameHeader, 0, wbPart, true);
-                        UpdateCellValue(sheetName, ColUserEmailIndex + rowIndex.ToString(), ColUserEmailHeader, 0, wbPart, true);
-                        UpdateCellValue(sheetName, ColRoleIndex + rowIndex.ToString(), ColRoleHeader, 0, wbPart, true);
-                        UpdateCellValue(sheetName, ColUpdatedIndex + rowIndex.ToString(), ColUpdatedHeader, 0, wbPart, true);
-
-                        // Write the user data
-                        foreach (var userGroup in duplicatedUsersGrouped)
+                        bool firstLine = true;
+                        foreach (var user in userGroup)
                         {
-                            bool firstLine = true;
-                            foreach (var user in userGroup)
+                            ++rowIndex;
+                            if (firstLine)
                             {
-                                ++rowIndex;
-                                if (firstLine)
-                                {
-                                    UpdateCellValue(sheetName, ColUserNameIndex + rowIndex.ToString(), user.Name, 0, wbPart, true);
-                                    UpdateCellValue(sheetName, ColUserEmailIndex + rowIndex.ToString(), user.Email, 0, wbPart, true);
-                                    UpdateCellValue(sheetName, ColRoleIndex + rowIndex.ToString(), user.Role, 0, wbPart, true);
-                                    UpdateCellValue(sheetName, ColUpdatedIndex + rowIndex.ToString(), user.UpdatedAt.ToString(), 0, wbPart, true);
-                                    firstLine = false;
-                                }
-                                else
-                                {
-                                    UpdateCellValue(sheetName, ColUserEmailIndex + rowIndex.ToString(), user.Email, 0, wbPart, true);
-                                    UpdateCellValue(sheetName, ColRoleIndex + rowIndex.ToString(), user.Role, 0, wbPart, true);
-                                    UpdateCellValue(sheetName, ColUpdatedIndex + rowIndex.ToString(), user.UpdatedAt.ToString(), 0, wbPart, true);
-                                }
-
+                                UpdateCellValue(wbPart, sheetName, ColUserNameIndex + rowIndex.ToString(), user.Name);
+                                firstLine = false;
                             }
+                            UpdateCellValue(wbPart, sheetName, ColUserEmailIndex + rowIndex.ToString(), user.Email);
+                            UpdateCellValue(wbPart, sheetName, ColRoleIndex + rowIndex.ToString(), user.Role);
+                            UpdateCellValue(wbPart, sheetName, ColUpdatedIndex + rowIndex.ToString(), user.UpdatedAt.ToString());
+
                         }
                     }
+
                 }
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Exception: {ex.Message}");
-            }
-            
+
         }
     }
 }

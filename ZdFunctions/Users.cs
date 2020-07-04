@@ -10,7 +10,7 @@ namespace ZdFindDuplicateUsers.ZdFunctions
     public static class Users
     {
 
-        // Get ticket fields
+        // Get users
         public static ZdUsers GetUsers(string baseUrl, string apiCredentials, string appendResource = "")
         {
             var response = RestHelperFunctions.SendRestRequest(baseUrl, apiCredentials, "api/v2/users.json" + appendResource, System.Net.HttpStatusCode.OK, "getting users");
@@ -39,6 +39,7 @@ namespace ZdFindDuplicateUsers.ZdFunctions
             while (!done)
             {
                 var userBatch = GetUsers(url, apiCredentials, appendResource);
+                Console.WriteLine($"Got users {appendResource}");
                 if (!(userBatch is null))
                 {
                     allUsers = allUsers.Concat(userBatch.Users);
