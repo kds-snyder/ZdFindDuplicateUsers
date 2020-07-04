@@ -26,15 +26,17 @@ namespace ZdFindDuplicateUsers
 
             var apiCredentials = Convert.ToBase64String(Encoding.Default.GetBytes($"{emailAddress}/token:{apiToken}"));
 
+            IOrderedEnumerable<IGrouping<string, ZdUser>> duplicatedUsersGrouped = null;
+            IEnumerable<ZdUser> zdUsers = null;
             var stopwatch = Stopwatch.StartNew();
 
             try
             {
                 // Get all users
-                var zdUsers = ZdFunctions.Users.GetAllUsers(userApiBase, apiCredentials);
+                zdUsers = ZdFunctions.Users.GetAllUsers(userApiBase, apiCredentials);
 
                 // Get duplicate users, grouped by name
-                var duplicatedUsersGrouped = zdUsers.GroupBy(x => x.Name)
+                duplicatedUsersGrouped = zdUsers.GroupBy(x => x.Name)
                                             .Where(g => g.Count() > 1)
                                             .OrderBy(g => g.Key);
                 // Create output Excel file
