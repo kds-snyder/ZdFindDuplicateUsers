@@ -1,9 +1,8 @@
 ﻿using Newtonsoft.Json;
-using RestSharp;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
+using ZdFindDuplicateUsers.HelperFunctions;
 using ZdFindDuplicateUsers.ZdModels;
 
 namespace ZdFindDuplicateUsers.ZdFunctions

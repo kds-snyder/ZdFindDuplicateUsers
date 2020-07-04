@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Text;
+using ZdFindDuplicateUsers.HelperFunctions;
 using ZdFindDuplicateUsers.ZdModels;
 
 namespace ZdFindDuplicateUsers
@@ -43,7 +43,7 @@ namespace ZdFindDuplicateUsers
                 ExcelHelperFunctions.CreateExcelFile(excelFileName, sheetName);
 
                 // Output duplicate users to Excel file
-                ExcelHelperFunctions.OutputDuplicatedUsersToExcel(excelFileName, sheetName, duplicatedUsersGrouped);
+                ExcelHelperFunctions.OutputDuplicatedUsersToExcel(excelFileName, sheetName, duplicatedUsersGrouped, zdUsers);
             }
             catch (Exception ex)
             {

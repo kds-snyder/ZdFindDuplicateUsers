@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using DocumentFormat.OpenXml;
@@ -6,7 +7,7 @@ using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using ZdFindDuplicateUsers.ZdModels;
 
-namespace ZdFindDuplicateUsers
+namespace ZdFindDuplicateUsers.HelperFunctions
 {
     public static class ExcelHelperFunctions
     {
@@ -263,7 +264,7 @@ namespace ZdFindDuplicateUsers
             return updated;
         }
 
-        public static void OutputDuplicatedUsersToExcel(string fileName, string sheetName, IOrderedEnumerable<IGrouping<string, ZdUser>> duplicatedUsersGrouped = null)
+        public static void OutputDuplicatedUsersToExcel(string fileName, string sheetName, IOrderedEnumerable<IGrouping<string, ZdUser>> duplicatedUsersGrouped, IEnumerable<ZdUser> zdUsers)
         {
             string ColUserNameHeader = "User Name";
             string ColUserNameIndex = "A";
