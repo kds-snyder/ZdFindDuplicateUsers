@@ -11,6 +11,7 @@ namespace ZdFindDuplicateUsers.HelperFunctions
 {
     public static class ExcelHelperFunctions
     {
+        #region Utility functions
         /// <summary>
         /// Add cell with specified address to specified row
         /// </summary>
@@ -248,7 +249,9 @@ namespace ZdFindDuplicateUsers.HelperFunctions
 
             return updated;
         }
+        #endregion Utility functions
 
+        #region Output functions
         /// <summary>
         /// Outputs duplicated users to Excel file
         /// Columns are user name, email, role, and updated
@@ -312,5 +315,6 @@ namespace ZdFindDuplicateUsers.HelperFunctions
             }
 
         }
+        #endregion Output functions
     }
 }
