@@ -204,23 +204,23 @@ namespace ZdFindDuplicateUsers.HelperFunctions
         /// </summary>
         /// <param name="wbPart">WorkBookPart</param>
         /// <param name="sheetName">Workbook sheet to edit</param>
-        /// <param name="addressName">excel cell address (e.g. B5)</param>
+        /// <param name="colAddress">excel cell column address (e.g. A)</param>
+        /// <param name="rowIndex">excel cell row index (e.g. 1)</param>
         /// <param name="value">value for cell</param>
         /// <param name="styleIndex"> styling to apply to cell - defaults to 0 (no style</param>)
         /// <param name="isString">string or number - defaults to true (string) </param>
         /// <returns></returns>
-        public static bool UpdateCellValue(WorkbookPart wbPart, string sheetName, string addressName, string value,
-                               int styleIndex = 0,  bool isString = true)
+        public static bool UpdateCellValue(WorkbookPart wbPart, string sheetName, string colAddress, int rowIndex,
+                                            string value, int styleIndex = 0,  bool isString = true)
         {
-            // Assume failure.
+            string cellAddress = colAddress + rowIndex.ToString();
             bool updated = false;
-
             Sheet sheet = wbPart.Workbook.Descendants<Sheet>().FirstOrDefault((s) => s.Name == sheetName);
 
             if (sheet != null)
             {
                 Worksheet ws = ((WorksheetPart)(wbPart.GetPartById(sheet.Id))).Worksheet;
-                Cell cell = InsertCellInWorksheet(ws, addressName);
+                Cell cell = InsertCellInWorksheet(ws, cellAddress);
 
                 if (isString)
                 {
@@ -260,15 +260,15 @@ namespace ZdFindDuplicateUsers.HelperFunctions
         /// <returns></returns>
         public static void OutputDuplicatedUsersToExcel(string fileName, string sheetName, IOrderedEnumerable<IGrouping<string, ZdUser>> duplicatedUsersGrouped, IEnumerable<ZdUser> zdUsers)
         {
-            string ColUserNameHeader = "User Name";
-            string ColUserNameIndex = "A";
-            string ColUserEmailHeader = "Email";
-            string ColUserEmailIndex = "B";
-            string ColRoleHeader = "Role";
-            string ColRoleIndex = "C";
-            string ColUpdatedHeader = "Updated";
-            string ColUpdatedIndex = "D";
-            string ColFirstIndex = ColUserNameIndex;
+            string ColHeaderUserName = "User Name";
+            string ColAddrUserName = "A";
+            string ColHeaderEmail = "Email";
+            string ColAddrEmail = "B";
+            string ColHeaderRole = "Role";
+            string ColAddrRole = "C";
+            string ColHeaderUpdated = "Updated";
+            string ColAddrUpdated = "D";
+            string ColAddrFirst = ColAddrUserName;
 
             using (var fs = new FileStream(fileName, FileMode.Open, FileAccess.ReadWrite))
             {
@@ -278,15 +278,15 @@ namespace ZdFindDuplicateUsers.HelperFunctions
                     WorkbookPart wbPart = document.WorkbookPart;
 
                     // Write counts
-                    UpdateCellValue(wbPart, sheetName, ColFirstIndex + rowIndex.ToString(),
+                    UpdateCellValue(wbPart, sheetName, ColAddrFirst, rowIndex,
                                     $"Total # user records: {zdUsers.Count()}, # duplicated users: {duplicatedUsersGrouped.Count()}");
                     rowIndex += 2;
 
                     // Write column headers
-                    UpdateCellValue(wbPart, sheetName, ColUserNameIndex + rowIndex.ToString(), ColUserNameHeader);
-                    UpdateCellValue(wbPart, sheetName, ColUserEmailIndex + rowIndex.ToString(), ColUserEmailHeader);
-                    UpdateCellValue(wbPart, sheetName, ColRoleIndex + rowIndex.ToString(), ColRoleHeader);
-                    UpdateCellValue(wbPart, sheetName, ColUpdatedIndex + rowIndex.ToString(), ColUpdatedHeader);
+                    UpdateCellValue(wbPart, sheetName, ColAddrUserName, rowIndex, ColHeaderUserName);
+                    UpdateCellValue(wbPart, sheetName, ColAddrEmail, rowIndex, ColHeaderEmail);
+                    UpdateCellValue(wbPart, sheetName, ColAddrRole, rowIndex, ColHeaderRole);
+                    UpdateCellValue(wbPart, sheetName, ColAddrUpdated, rowIndex, ColHeaderUpdated);
 
                     // Write the user data
                     bool firstLine;
@@ -298,12 +298,12 @@ namespace ZdFindDuplicateUsers.HelperFunctions
                             ++rowIndex;
                             if (firstLine)
                             {
-                                UpdateCellValue(wbPart, sheetName, ColUserNameIndex + rowIndex.ToString(), user.Name);
+                                UpdateCellValue(wbPart, sheetName, ColAddrUserName, rowIndex, user.Name);
                                 firstLine = false;
                             }
-                            UpdateCellValue(wbPart, sheetName, ColUserEmailIndex + rowIndex.ToString(), user.Email);
-                            UpdateCellValue(wbPart, sheetName, ColRoleIndex + rowIndex.ToString(), user.Role);
-                            UpdateCellValue(wbPart, sheetName, ColUpdatedIndex + rowIndex.ToString(), user.UpdatedAt.ToString());
+                            UpdateCellValue(wbPart, sheetName, ColAddrEmail, rowIndex, user.Email);
+                            UpdateCellValue(wbPart, sheetName, ColAddrRole, rowIndex, user.Role);
+                            UpdateCellValue(wbPart, sheetName, ColAddrUpdated, rowIndex, user.UpdatedAt.ToString());
 
                         }
                     }
