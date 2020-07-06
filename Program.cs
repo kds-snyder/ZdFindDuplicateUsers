@@ -23,7 +23,7 @@ namespace ZdFindDuplicateUsers
             string excelFileName = Console.ReadLine();
             Console.Write("Enter output Excel file sheet name: ");
             string sheetName = Console.ReadLine();
-
+            
             var apiCredentials = Convert.ToBase64String(Encoding.Default.GetBytes($"{emailAddress}/token:{apiToken}"));
 
             IOrderedEnumerable<IGrouping<string, ZdUser>> duplicatedUsersGrouped = null;

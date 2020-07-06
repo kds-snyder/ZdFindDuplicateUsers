@@ -268,6 +268,7 @@ namespace ZdFindDuplicateUsers.HelperFunctions
             string ColRoleIndex = "C";
             string ColUpdatedHeader = "Updated";
             string ColUpdatedIndex = "D";
+            string ColFirstIndex = ColUserNameIndex;
 
             using (var fs = new FileStream(fileName, FileMode.Open, FileAccess.ReadWrite))
             {
@@ -277,7 +278,7 @@ namespace ZdFindDuplicateUsers.HelperFunctions
                     WorkbookPart wbPart = document.WorkbookPart;
 
                     // Write counts
-                    UpdateCellValue(wbPart, sheetName, ColUserNameIndex + rowIndex.ToString(),
+                    UpdateCellValue(wbPart, sheetName, ColFirstIndex + rowIndex.ToString(),
                                     $"Total # user records: {zdUsers.Count()}, # duplicated users: {duplicatedUsersGrouped.Count()}");
                     rowIndex += 2;
 
@@ -287,8 +288,8 @@ namespace ZdFindDuplicateUsers.HelperFunctions
                     UpdateCellValue(wbPart, sheetName, ColRoleIndex + rowIndex.ToString(), ColRoleHeader);
                     UpdateCellValue(wbPart, sheetName, ColUpdatedIndex + rowIndex.ToString(), ColUpdatedHeader);
 
-                    bool firstLine;
                     // Write the user data
+                    bool firstLine;
                     foreach (var userGroup in duplicatedUsersGrouped)
                     {
                         firstLine = true;
