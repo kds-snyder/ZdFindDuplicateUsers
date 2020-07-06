@@ -279,7 +279,7 @@ namespace ZdFindDuplicateUsers.HelperFunctions
                     // Write counts
                     UpdateCellValue(wbPart, sheetName, ColUserNameIndex + rowIndex.ToString(),
                                     $"Total # user records: {zdUsers.Count()}, # duplicated users: {duplicatedUsersGrouped.Count()}");
-                    rowIndex = rowIndex + 2;
+                    rowIndex += 2;
 
                     // Write column headers
                     UpdateCellValue(wbPart, sheetName, ColUserNameIndex + rowIndex.ToString(), ColUserNameHeader);
@@ -287,10 +287,11 @@ namespace ZdFindDuplicateUsers.HelperFunctions
                     UpdateCellValue(wbPart, sheetName, ColRoleIndex + rowIndex.ToString(), ColRoleHeader);
                     UpdateCellValue(wbPart, sheetName, ColUpdatedIndex + rowIndex.ToString(), ColUpdatedHeader);
 
+                    bool firstLine;
                     // Write the user data
                     foreach (var userGroup in duplicatedUsersGrouped)
                     {
-                        bool firstLine = true;
+                        firstLine = true;
                         foreach (var user in userGroup)
                         {
                             ++rowIndex;

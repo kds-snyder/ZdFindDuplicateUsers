@@ -16,20 +16,21 @@ namespace ZdFindDuplicateUsers.HelperFunctions
                 Console.WriteLine($"Total # user records: {zdUsers.Count()}, # duplicated users: {duplicatedUsersGrouped.Count()}");
 
                 Console.WriteLine("");
-                Console.WriteLine("User name\t\t\tEmail\t\t\t\t\t\tRole\t\tUpdated");
+                Console.WriteLine("User name\tEmail\tRole\tUpdated");
+                bool firstLine;
                 foreach (var userGroup in duplicatedUsersGrouped)
                 {
-                    bool firstLine = true;
+                    firstLine = true;
                     foreach (var user in userGroup)
                     {
                         if (firstLine)
                         {
-                            Console.WriteLine($"{user.Name}\t\t\t{user.Email}\t\t\t\t{user.Role}\t{user.UpdatedAt}");
+                            Console.WriteLine($"{user.Name}\t{user.Email}\t{user.Role}\t{user.UpdatedAt}");
                             firstLine = false;
                         }
                         else
                         {
-                            Console.WriteLine($"\t\t\t\t{user.Email}\t\t\t\t{user.Role}\t{user.UpdatedAt}");
+                            Console.WriteLine($"\t{user.Email}\t{user.Role}\t{user.UpdatedAt}");
                         }
 
                     }
