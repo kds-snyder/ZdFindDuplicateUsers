@@ -23,7 +23,7 @@ namespace ZdFindDuplicateUsers
             string excelFileName = Console.ReadLine();
             Console.Write("Enter output Excel file sheet name: ");
             string sheetName = Console.ReadLine();
-            
+
             var apiCredentials = Convert.ToBase64String(Encoding.Default.GetBytes($"{emailAddress}/token:{apiToken}"));
 
             IOrderedEnumerable<IGrouping<string, ZdUser>> duplicatedUsersGrouped = null;
@@ -39,11 +39,16 @@ namespace ZdFindDuplicateUsers
                 duplicatedUsersGrouped = zdUsers.GroupBy(x => x.Name)
                                             .Where(g => g.Count() > 1)
                                             .OrderBy(g => g.Key);
-                // Create output Excel file
-                ExcelHelperFunctions.CreateExcelFile(excelFileName, sheetName);
 
-                // Output duplicate users to Excel file
-                ExcelHelperFunctions.OutputDuplicatedUsersToExcel(excelFileName, sheetName, duplicatedUsersGrouped, zdUsers);
+                // Create output Excel file and write duplicated users if any
+                if (duplicatedUsersGrouped.Any())
+                {
+                    Console.WriteLine("Creating Excel file");
+                    ExcelHelperFunctions.CreateExcelFile(excelFileName, sheetName);
+
+                    Console.WriteLine("Writing duplicate users to Excel file");
+                    ExcelHelperFunctions.OutputDuplicatedUsersToExcel(excelFileName, sheetName, duplicatedUsersGrouped, zdUsers);
+                }                
             }
             catch (Exception ex)
             {

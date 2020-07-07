@@ -301,6 +301,7 @@ namespace ZdFindDuplicateUsers.HelperFunctions
                             ++rowIndex;
                             if (firstLine)
                             {
+                                Console.WriteLine($"Writing row {rowIndex}");
                                 UpdateCellValue(wbPart, sheetName, ColAddrUserName, rowIndex, user.Name);
                                 firstLine = false;
                             }
