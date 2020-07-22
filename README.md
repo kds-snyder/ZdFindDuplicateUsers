@@ -16,5 +16,10 @@ When you use the program, you will be prompted to input the following:
 5. Output Excel file sheet name
 
 To run the program, open it in Visual Studio and then enter CTRL + F5. The program will open a console window and
-start prompting for input. It will output the result page number to show the progress, and then will output statistics
-when it completes.
+start prompting for input. After a few seconds, it will output its progress in reading the users, and then will output
+statistics like the following when it completes:
+
+Total # user records: 68776, # duplicated users: 2073
+Program duration time: 0 hours, 29 minutes, 3 seconds, 13 milliseconds
+
+Note that the progress output makes the program slower, but the tradeoff is that it makes it possible to see the progress. 
